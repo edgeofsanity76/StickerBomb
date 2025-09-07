@@ -2,7 +2,7 @@
 
 Creates a sticker bomb effect by overlaying multiple images.
 
-[imgs/stickerbomb.png](imgs/stickerbomb.png)]
+![image info](./StickerBomb_20250907_210457.png)
 
 TODO: Docs
 
