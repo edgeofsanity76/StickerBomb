@@ -57,6 +57,7 @@ jobs:
 
     env:
       Solution_Name: StickerBomb.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
+      Wap_Project_Directory: .
 
     steps:
     - name: Checkout
