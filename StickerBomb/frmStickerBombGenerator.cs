@@ -20,6 +20,8 @@ namespace StickerBomb
             var x = (int)numX.Value;
             var y = (int)numY.Value;
 
+            var maxStickersPerCell = (int)numMaxStickersPerCell.Value;
+
             //Set canvass size
             generator.Initialize(x, y);
 
@@ -33,11 +35,7 @@ namespace StickerBomb
                 pictureBox1.Refresh();
                 Application.DoEvents();
 
-            });
-
-            var canvass = generator.GetCanvass();
-            pictureBox1.Image = canvass;
-
+            }, maxStickersPerCell);
 
             //Create filename for output file
             //Ensure output folder exists
@@ -46,7 +44,9 @@ namespace StickerBomb
                 Directory.CreateDirectory(outputFolder);
             
             var outputFile = Path.Combine(outputFolder, $"StickerBomb_{DateTime.Now:yyyyMMdd_HHmmss}.png");
-            generator.SaveCanvass(outputFile);
+
+            pictureBox1.Image.Save(outputFile, System.Drawing.Imaging.ImageFormat.Png);
+
             MessageBox.Show($"Sticker bomb saved to {outputFile}");
 
             btnGenerate.Enabled = _stickerFiles.Count > 0;
@@ -63,15 +63,16 @@ namespace StickerBomb
 
             generator.LoadStickers(stickerFiles);
 
-            generator.ApplyStickers(bitmap =>
+            Bitmap result = new Bitmap(0,0);
+
+            generator.ApplyStickers(progressBitmap =>
             {
                 //Display progress or do something else
+                result = progressBitmap;
             });
 
-            var bitMap = generator.GetCanvass();
-
             //Save to file
-            bitMap.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
+            result.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
         private void btnAddImageFiles_Click(object sender, EventArgs e)
