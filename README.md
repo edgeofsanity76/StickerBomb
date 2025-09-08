@@ -40,6 +40,10 @@ All code is free to use and modify as you see fit. This is just bit of fun.
         }
 ```
 
+## Notes
+
+- If you see gaps in the final image, try increasing the number of stickers per grid cell. Default is 30.
+
 ## Concept
 
 The concept is based on the idea of a "sticker bomb," where multiple stickers are layered on top of each other to create a visually appealing collage. The application randomly selects images from a provided set and places them on a canvas, applying random rotations and positions to create a dynamic effect.
