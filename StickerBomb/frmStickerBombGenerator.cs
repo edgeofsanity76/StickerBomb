@@ -53,6 +53,27 @@ namespace StickerBomb
             btnAddImageFiles.Enabled = true;
         }
 
+        private void ExampleUsage()
+        {
+            using var generator = new EoS.StickerBomb.Generator();
+            generator.Initialize(2000, 2000);
+
+            //Get sticker fil from Stickers folder
+            var stickerFiles = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
+
+            generator.LoadStickers(stickerFiles);
+
+            generator.ApplyStickers(bitmap =>
+            {
+                //Display progress or do something else
+            });
+
+            var bitMap = generator.GetCanvass();
+
+            //Save to file
+            bitMap.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
+        }
+
         private void btnAddImageFiles_Click(object sender, EventArgs e)
         {
             //Open file dialog to select image files

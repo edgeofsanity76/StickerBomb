@@ -51,7 +51,7 @@
             pictureBox1.BorderStyle = BorderStyle.FixedSingle;
             pictureBox1.Location = new Point(12, 41);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1709, 698);
+            pictureBox1.Size = new Size(961, 707);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -151,7 +151,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1733, 751);
+            ClientSize = new Size(985, 760);
             Controls.Add(numMaxStickersPerCell);
             Controls.Add(label4);
             Controls.Add(numY);
