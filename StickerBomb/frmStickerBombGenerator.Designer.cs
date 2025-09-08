@@ -102,7 +102,7 @@
             // numX
             // 
             numX.Location = new Point(302, 14);
-            numX.Maximum = new decimal(new int[] { 3840, 0, 0, 0 });
+            numX.Maximum = new decimal(new int[] { 5120, 0, 0, 0 });
             numX.Minimum = new decimal(new int[] { 1024, 0, 0, 0 });
             numX.Name = "numX";
             numX.Size = new Size(120, 23);
