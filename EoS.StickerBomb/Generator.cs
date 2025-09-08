@@ -203,6 +203,14 @@ public class Generator : IDisposable
         //Randomize grid cells
         var rnd = new Random(DateTime.Now.Millisecond);
         _gridCells.Sort((a, b) => rnd.Next(-1, 2));
+
+        //Add cell the size of canvass at the end of the list so that some stickers are applied to the whole canvass to fill in gaps
+        _gridCells.Add(new GridCell
+        {
+            Position = new Point(0, 0),
+            Width = width,
+            Height = height
+        });
     }
 
 
@@ -262,13 +270,10 @@ public class Generator : IDisposable
 
     public List<Point> FindAllTransparentPixels(Bitmap bmp)
     {
-        var heightStep = (int)(bmp.Height * 0.01);
-        var widthStep = (int)(bmp.Width * 0.01);
-
         var pixels = new List<Point>();
-        for (var y = 0; y < bmp.Height; y += heightStep)
+        for (var y = 0; y < bmp.Height; y += 1)
         {
-            for (var x = 0; x < bmp.Width; x += widthStep)
+            for (var x = 0; x < bmp.Width; x += 1)
             {
                 var pixel = bmp.GetPixel(x, y);
                 if (pixel.A == 0)
