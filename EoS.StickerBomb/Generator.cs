@@ -37,6 +37,11 @@ public class Generator : IDisposable
         using var g = Graphics.FromImage(bmp);
 
         g.SmoothingMode = SmoothingMode.AntiAlias;
+        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        g.CompositingQuality = CompositingQuality.HighQuality;
+        g.CompositingMode = CompositingMode.SourceOver;
+
         foreach (var pixel in pixels)
         {
             g.FillEllipse(new SolidBrush(borderColor), pixel.X - borderSize, pixel.Y - borderSize, borderSize * 2, borderSize * 2);
@@ -51,9 +56,9 @@ public class Generator : IDisposable
         _originalX = width;
         _originalY = height;
 
-        //Create canvass with 10% overlap so that stickers can go over the edge
-        var overlapX = (int)(width * 1.1);
-        var overlapY = (int)(height * 1.1);
+        //Create canvass with 5% overlap so that stickers can go over the edge
+        var overlapX = (int)(width * 1.05);
+        var overlapY = (int)(height * 1.05);
 
         _canvass = new Bitmap(overlapX, overlapY);
         _graphics = Graphics.FromImage(_canvass);
@@ -65,6 +70,11 @@ public class Generator : IDisposable
 
         //Set high quality rendering
         _graphics.SmoothingMode = SmoothingMode.HighQuality;
+        _graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        _graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        _graphics.CompositingQuality = CompositingQuality.HighQuality;
+        _graphics.CompositingMode = CompositingMode.SourceOver;
+
         foreach (var cell in _gridCells) 
         {
             //Draw rectangle with light gray border
@@ -74,14 +84,9 @@ public class Generator : IDisposable
         _canvassSet = true;
     }
 
-    public void ApplyStickers(Action<Bitmap>? onUpdate)
+    public void ApplyStickers(Action<Bitmap>? onUpdate, int maxImagesPerCell = 30)
     {
-        foreach (var cell in GridCells) ApplyStickers(cell, onUpdate);
-    }
-
-    public void ApplyStickers(GridCell cell, Action<Bitmap>? onUpdate)
-    {
-        ApplyStickers(cell, onUpdate, 20);
+        foreach (var cell in GridCells) ApplyStickers(cell, onUpdate, maxImagesPerCell);
     }
 
     public void ApplyStickers(GridCell cell, Action<Bitmap>? onUpdate, int maxImagesPerCell)
@@ -113,7 +118,7 @@ public class Generator : IDisposable
             var sticker = _stickers[rnd.Next(0, _stickers.Count)];
                 
             //Resize
-            var newHeight = rnd.Next(100, rnd.Next(100, (int)(_originalX * 0.1) + 100));
+            var newHeight = rnd.Next(100, rnd.Next(100, (int)(_originalY * 0.25) + 100));
             var aspectRatio = (float)sticker.Width / sticker.Height;
             var newWidth = (int)(newHeight * aspectRatio);
             var resizedSticker = Resize(sticker, newWidth, newHeight);
@@ -122,9 +127,12 @@ public class Generator : IDisposable
             var angle = rnd.Next(-60, 60);
             var rotatedSticker = Rotate(resizedSticker, angle);
 
+            var rotatedStickerCentreX = rotatedSticker.Width / 2;
+            var rotatedStickerCentreY = rotatedSticker.Height / 2;
+
             //Position
-            var x = cell.Position.X + pixel.X - resizedSticker.Width;
-            var y = cell.Position.Y + pixel.Y - resizedSticker.Height;
+            var x = cell.Position.X + (pixel.X - rotatedStickerCentreX);
+            var y = cell.Position.Y + (pixel.Y  - rotatedStickerCentreY);
 
             //Apply white border
             ApplyBorder(rotatedSticker, 2, Color.White);
@@ -144,25 +152,6 @@ public class Generator : IDisposable
 
             onUpdate.Invoke((Bitmap)updateCanvass.Clone());
         }
-    }
-
-    public Bitmap GetCanvass()
-    {
-        if (!_canvassSet) throw new InvalidOperationException("Canvass not set. Call Initialize() first.");
-        return _canvass!;
-    }
-
-    public void SaveCanvass(string filePath)
-    {
-        if (!_canvassSet) throw new InvalidOperationException("Canvass not set. Call Initialize() first.");
-
-        //Crop canvass to original size
-        var croppedCanvass = new Bitmap(_originalX, _originalY);
-        using (var g = Graphics.FromImage(croppedCanvass))
-        {
-            g.DrawImage(_canvass!, 0, 0, new Rectangle(0, 0, _originalX, _originalY), GraphicsUnit.Pixel);
-        }
-        croppedCanvass.Save(filePath);
     }
 
     public void LoadStickers(params string[] filePaths)
@@ -200,6 +189,10 @@ public class Generator : IDisposable
                 });
             }
         }
+
+        //Randomize grid cells
+        var rnd = new Random(DateTime.Now.Millisecond);
+        _gridCells.Sort((a, b) => rnd.Next(-1, 2));
     }
 
 
@@ -259,10 +252,13 @@ public class Generator : IDisposable
 
     public List<Point> FindAllTransparentPixels(Bitmap bmp)
     {
+        var heightStep = (int)(bmp.Height * 0.01);
+        var widthStep = (int)(bmp.Width * 0.01);
+
         var pixels = new List<Point>();
-        for (var y = 0; y < bmp.Height; y += 20)
+        for (var y = 0; y < bmp.Height; y += heightStep)
         {
-            for (var x = 0; x < bmp.Width; x += 20)
+            for (var x = 0; x < bmp.Width; x += widthStep)
             {
                 var pixel = bmp.GetPixel(x, y);
                 if (pixel.A == 0)

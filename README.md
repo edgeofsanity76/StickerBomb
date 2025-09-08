@@ -20,29 +20,29 @@ All code is free to use and modify as you see fit. This is just bit of fun.
         private void ExampleUsage()
         {
             using var generator = new EoS.StickerBomb.Generator();
-            
-            //Create canvass of 2000x2000 pixels
             generator.Initialize(2000, 2000);
 
             //Get sticker fil from Stickers folder
             var stickerFiles = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
 
-            //Load stickers into memory
             generator.LoadStickers(stickerFiles);
 
-            //Apply stickers to canvass
+            Bitmap result = new Bitmap(0,0);
+
             generator.ApplyStickers(progressBitmap =>
             {
                 //Display progress or do something else
+                result = progressBitmap;
             });
 
-            //Get final image
-            var bitMap = generator.GetCanvass();
-
             //Save to file
-            bitMap.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
+            result.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 ```
+
+## Notes
+
+- If you see gaps in the final image, try increasing the number of stickers per grid cell. Default is 30.
 
 ## Concept
 
@@ -53,6 +53,8 @@ To ensure good coverage, we create a grid on the canvass. For each grid cell we 
 We repeat this until we have place the max number of stickers on the cell (as specified) or we run out of transparent pixels.
 
 The selection of transparent pixels is randomised.
+
+If the size of the canvass is increased you may want to increase the number of stickers per cell to ensure good coverage.
 
 ## ToDo
 

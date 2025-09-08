@@ -145,7 +145,7 @@
             numMaxStickersPerCell.Name = "numMaxStickersPerCell";
             numMaxStickersPerCell.Size = new Size(120, 23);
             numMaxStickersPerCell.TabIndex = 14;
-            numMaxStickersPerCell.Value = new decimal(new int[] { 15, 0, 0, 0 });
+            numMaxStickersPerCell.Value = new decimal(new int[] { 30, 0, 0, 0 });
             // 
             // frmStickerBombGenerator
             // 
