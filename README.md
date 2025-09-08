@@ -22,27 +22,24 @@ All code is free to use and modify as you see fit. This is just bit of fun.
             using var generator = new EoS.StickerBomb.Generator();
             generator.Initialize(2000, 2000);
 
-            //Get sticker fil from Stickers folder
-            var stickerFiles = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
+            //Get sticker file from Stickers folder
+            var stickerFiles =
+                Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
 
             generator.LoadStickers(stickerFiles);
-
-            Bitmap result = new Bitmap(0,0);
 
             generator.ApplyStickers(progressBitmap =>
             {
                 //Display progress or do something else
-                result = progressBitmap;
-            });
-
-            //Save to file
-            result.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
+            }, bitmap => { bitmap.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png); });
         }
+
 ```
 
 ## Notes
 
 - If you see gaps in the final image, try increasing the number of stickers per grid cell. Default is 30.
+- You must supply an `onComplete` action to receive the final image.
 
 ## Concept
 

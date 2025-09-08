@@ -35,22 +35,20 @@ namespace StickerBomb
                 pictureBox1.Refresh();
                 Application.DoEvents();
 
+            }, bitmap =>
+            {
+                var outputFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output");
+                if (!Directory.Exists(outputFolder))
+                    Directory.CreateDirectory(outputFolder);
+
+                var outputFile = Path.Combine(outputFolder, $"StickerBomb_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+
+                bitmap.Save(outputFile, System.Drawing.Imaging.ImageFormat.Png);
+                MessageBox.Show($"Sticker bomb saved to {outputFile}");
+
+                btnGenerate.Enabled = _stickerFiles.Count > 0;
+                btnAddImageFiles.Enabled = true;
             }, maxStickersPerCell);
-
-            //Create filename for output file
-            //Ensure output folder exists
-            var outputFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Output");
-            if (!Directory.Exists(outputFolder))
-                Directory.CreateDirectory(outputFolder);
-            
-            var outputFile = Path.Combine(outputFolder, $"StickerBomb_{DateTime.Now:yyyyMMdd_HHmmss}.png");
-
-            pictureBox1.Image.Save(outputFile, System.Drawing.Imaging.ImageFormat.Png);
-
-            MessageBox.Show($"Sticker bomb saved to {outputFile}");
-
-            btnGenerate.Enabled = _stickerFiles.Count > 0;
-            btnAddImageFiles.Enabled = true;
         }
 
         private void ExampleUsage()
@@ -59,20 +57,15 @@ namespace StickerBomb
             generator.Initialize(2000, 2000);
 
             //Get sticker fil from Stickers folder
-            var stickerFiles = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
+            var stickerFiles =
+                Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Stickers"), "*.png");
 
             generator.LoadStickers(stickerFiles);
-
-            Bitmap result = new Bitmap(0,0);
 
             generator.ApplyStickers(progressBitmap =>
             {
                 //Display progress or do something else
-                result = progressBitmap;
-            });
-
-            //Save to file
-            result.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png);
+            }, bitmap => { bitmap.Save("sticker_bomb.png", System.Drawing.Imaging.ImageFormat.Png); });
         }
 
         private void btnAddImageFiles_Click(object sender, EventArgs e)
@@ -95,109 +88,9 @@ namespace StickerBomb
             btnGenerate.Enabled = _stickerFiles.Count > 0;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        ////load single image
-        //var bmp = new Bitmap(@"3P_Galatea_1_O_D.png");
-
-        ////Resize to 50% using graphics
-        //var newWidth = bmp.Width / 2;
-        //var newHeight = bmp.Height / 2;
-        //var resizedBmp = new Bitmap(newWidth, newHeight);
-        //using (var g = Graphics.FromImage(resizedBmp))
-        //{
-        //    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-        //    g.DrawImage(bmp, 0, 0, newWidth, newHeight);
-        //}
-
-        //bmp = resizedBmp;
-
-
-        //var pixels = FindAllPixelsThatHaveAnAdjacentTransparentPixel(bmp);
-
-        ////Draw red dots on those pixels
-        //using (var g = Graphics.FromImage(bmp))
-        //{
-        //    //Set smoothing mode to high quality
-        //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-        //    foreach (var pixel in pixels)
-        //    {
-        //        g.FillEllipse(Brushes.Black, pixel.X - 2, pixel.Y - 2, 4, 4);
-        //    }
-        //}
-
-        //var whitePixels = FindAllPixelsThatHaveAnAdjacentTransparentPixel(bmp);
-
-        ////Draw white dots on those pixels
-        //using (var g = Graphics.FromImage(bmp))
-        //{
-        //    //Set smoothing mode to high quality
-        //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        //    foreach (var pixel in whitePixels)
-        //    {
-        //        g.FillEllipse(Brushes.White, pixel.X - 1, pixel.Y - 1, 2, 2);
-        //    }
-        //}
-
-
-        //pictureBox1.Image = bmp;
-
-
-
+        private void frmStickerBombGenerator_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
     }
-
-    //private Point[] FindAllPixelsThatHaveAnAdjacentTransparentPixel(Bitmap bmp)
-    //{
-    //    //Find all pixels that have an adjacent transparent pixel
-    //    var pixels = new List<Point>();
-    //    for (int y = 1; y < bmp.Height - 1; y++)
-    //    {
-    //        for (int x = 1; x < bmp.Width - 1; x++)
-    //        {
-    //            var pixel = bmp.GetPixel(x, y);
-    //            if (pixel.A == 0)
-    //                continue;
-    //            var adjacentPixels = new Point[]
-    //            {
-    //                new Point(x - 1, y),
-    //                new Point(x + 1, y),
-    //                new Point(x, y - 1),
-    //                new Point(x, y + 1),
-    //                new Point(x - 1, y - 1),
-    //                new Point(x + 1, y - 1),
-    //                new Point(x - 1, y + 1),
-    //                new Point(x + 1, y + 1),
-    //            };
-    //            foreach (var adjacentPixel in adjacentPixels)
-    //            {
-    //                var adjacentPixelColor = bmp.GetPixel(adjacentPixel.X, adjacentPixel.Y);
-    //                if (adjacentPixelColor.A == 0)
-    //                {
-    //                    pixels.Add(new Point(x, y));
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return pixels.ToArray();
-    //}
-
-
 }
-
-
-
