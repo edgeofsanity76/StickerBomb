@@ -125,11 +125,11 @@ public class Generator : IDisposable
 
         foreach (var pixel in transparentPixels.Take(maxImagesPerCell))
         {
-            var sticker = _stickers[rnd.Next(0, _stickers.Count)];
+            var sticker = _stickers[rnd.Next(0, _stickers.Count -1)];
                 
             //Resize
-            var minY = (int)(_originalY * 0.1);
-            var maxY = (int)(_originalY * 0.25);
+            var minY = (int)(_originalY * 0.15);
+            var maxY = (int)(_originalY * 0.30);
 
             var newHeight = rnd.Next(minY, maxY);
             var aspectRatio = (float)sticker.Width / sticker.Height;
