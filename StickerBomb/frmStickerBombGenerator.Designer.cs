@@ -165,6 +165,7 @@
             Controls.Add(pictureBox1);
             Name = "frmStickerBombGenerator";
             Text = "Sticker Bomb Generator";
+            FormClosing += frmStickerBombGenerator_FormClosing;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)numX).EndInit();
             ((System.ComponentModel.ISupportInitialize)numY).EndInit();

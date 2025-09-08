@@ -84,17 +84,25 @@ public class Generator : IDisposable
         _canvassSet = true;
     }
 
-    public void ApplyStickers(Action<Bitmap>? onUpdate, int maxImagesPerCell = 30)
+    public void ApplyStickers(Action<Bitmap>? onUpdate, Action<Bitmap> onComplete, int maxImagesPerCell = 30)
     {
         foreach (var cell in GridCells) ApplyStickers(cell, onUpdate, maxImagesPerCell);
+
+        var result = new Bitmap(_originalX, _originalY);
+        using (var g = Graphics.FromImage(result))
+        {
+            g.DrawImage(_canvass!, new Rectangle(0, 0, result.Width, result.Height), new Rectangle((_canvass!.Width - result.Width) / 2, (_canvass.Height - result.Height) / 2, result.Width, result.Height), GraphicsUnit.Pixel);
+        }
+
+        onComplete.Invoke(result);
     }
 
-    public void ApplyStickers(GridCell cell, Action<Bitmap>? onUpdate, int maxImagesPerCell)
+    private void ApplyStickers(GridCell cell, Action<Bitmap>? onUpdate, int maxImagesPerCell)
     {
         if (cell.Width <= 0 || cell.Height <= 0) throw new ArgumentException("Cell width and height must be greater than 0.");
         if (_stickers.Count == 0) throw new InvalidOperationException("No stickers loaded. Call LoadStickers() first.");
         if (maxImagesPerCell <= 0) throw new ArgumentException("Max images per cell must be greater than 0.");
-            
+
         //Apply stickers to canvass
         if (!_canvassSet) throw new InvalidOperationException("Canvass not set. Call Initialize() first.");
 
@@ -153,6 +161,8 @@ public class Generator : IDisposable
             onUpdate.Invoke((Bitmap)updateCanvass.Clone());
         }
     }
+
+
 
     public void LoadStickers(params string[] filePaths)
     {
