@@ -12,6 +12,7 @@ public class Generator : IDisposable
     private Bitmap? _canvass;
     private Graphics? _graphics;
     private bool _canvassSet;
+    private Random _rnd = new(DateTime.Now.Millisecond);
 
     public record GridCell
     {
@@ -107,9 +108,6 @@ public class Generator : IDisposable
 
         //Apply stickers to canvass
         if (!_canvassSet) throw new InvalidOperationException("Canvass not set. Call Initialize() first.");
-
-        var seed = DateTime.Now.Millisecond;
-        var rnd = new Random(seed);
             
         var cellArea = new Bitmap(cell.Width, cell.Height);
             
@@ -121,23 +119,24 @@ public class Generator : IDisposable
         var transparentPixels = FindAllTransparentPixels(cellArea);
 
         //Shuffle list of pixels
-        transparentPixels = transparentPixels.OrderBy(_ => rnd.Next()).ToList();
+        transparentPixels = transparentPixels.OrderBy(_ => _rnd.Next()).ToList();
 
         foreach (var pixel in transparentPixels.Take(maxImagesPerCell))
         {
-            var sticker = _stickers[rnd.Next(0, _stickers.Count -1)];
-                
+            //Select random sticker
+            var sticker = _stickers[_rnd.Next(0, _stickers.Count - 1)];
+
             //Resize
             var minY = (int)(_originalY * 0.15);
             var maxY = (int)(_originalY * 0.30);
 
-            var newHeight = rnd.Next(minY, maxY);
+            var newHeight = _rnd.Next(minY, maxY);
             var aspectRatio = (float)sticker.Width / sticker.Height;
             var newWidth = (int)(newHeight * aspectRatio);
             var resizedSticker = Resize(sticker, newWidth, newHeight);
 
             //Rotate
-            var angle = rnd.Next(-60, 60);
+            var angle = _rnd.Next(-30, 30);
             var rotatedSticker = Rotate(resizedSticker, angle);
 
             var rotatedStickerCentreX = rotatedSticker.Width / 2;
@@ -153,7 +152,6 @@ public class Generator : IDisposable
             //Draw on canvass
             _graphics!.DrawImage(rotatedSticker, x, y);
 
-
             if (onUpdate == null) continue;
 
             //If onUpdate is set, crop canvass to original and send update
@@ -167,7 +165,7 @@ public class Generator : IDisposable
             onUpdate.Invoke((Bitmap)updateCanvass.Clone());
         }
     }
-
+    
     public void LoadStickers(params string[] filePaths)
     {
         _stickers.Clear();
@@ -178,6 +176,10 @@ public class Generator : IDisposable
             var bmp = new Bitmap(filePath);
             _stickers.Add(bmp);
         }
+
+        if (_stickers.Count == 0) throw new InvalidOperationException("No valid stickers loaded.");
+
+        _stickers.Sort((_, _) => _rnd.Next(-1, 2));
     }
 
     private void CreateGrid(int width, int height, int cellsPerAxis)
