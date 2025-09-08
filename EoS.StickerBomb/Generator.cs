@@ -26,7 +26,7 @@ public class Generator : IDisposable
     private int _originalX;
     private int _originalY;
 
-    public List<GridCell> GridCells => _gridCells;
+    public IReadOnlyList<GridCell> GridCells => _gridCells;
 
     private void ApplyBorder(Bitmap bmp, int borderSize, Color borderColor)
     {
@@ -89,9 +89,11 @@ public class Generator : IDisposable
         foreach (var cell in GridCells) ApplyStickers(cell, onUpdate, maxImagesPerCell);
 
         var result = new Bitmap(_originalX, _originalY);
+
         using (var g = Graphics.FromImage(result))
         {
-            g.DrawImage(_canvass!, new Rectangle(0, 0, result.Width, result.Height), new Rectangle((_canvass!.Width - result.Width) / 2, (_canvass.Height - result.Height) / 2, result.Width, result.Height), GraphicsUnit.Pixel);
+            g.DrawImage(_canvass!, new Rectangle(0, 0, result.Width, result.Height), 
+                                    new Rectangle((_canvass!.Width - result.Width) / 2, (_canvass.Height - result.Height) / 2, result.Width, result.Height), GraphicsUnit.Pixel);
         }
 
         onComplete.Invoke(result);
@@ -126,7 +128,10 @@ public class Generator : IDisposable
             var sticker = _stickers[rnd.Next(0, _stickers.Count)];
                 
             //Resize
-            var newHeight = rnd.Next(100, rnd.Next(100, (int)(_originalY * 0.25) + 100));
+            var minY = (int)(_originalY * 0.1);
+            var maxY = (int)(_originalY * 0.25);
+
+            var newHeight = rnd.Next(minY, maxY);
             var aspectRatio = (float)sticker.Width / sticker.Height;
             var newWidth = (int)(newHeight * aspectRatio);
             var resizedSticker = Resize(sticker, newWidth, newHeight);
@@ -155,14 +160,13 @@ public class Generator : IDisposable
             var updateCanvass = new Bitmap(_originalX, _originalY);
             using (var g = Graphics.FromImage(updateCanvass))
             {
-                g.DrawImage(_canvass!, new Rectangle(0, 0, updateCanvass.Width, updateCanvass.Height), new Rectangle((_canvass!.Width - updateCanvass.Width) / 2, (_canvass.Height - updateCanvass.Height) / 2, updateCanvass.Width, updateCanvass.Height), GraphicsUnit.Pixel);
+                g.DrawImage(_canvass!, new Rectangle(0, 0, updateCanvass.Width, updateCanvass.Height), 
+                                        new Rectangle((_canvass!.Width - updateCanvass.Width) / 2, (_canvass.Height - updateCanvass.Height) / 2, updateCanvass.Width, updateCanvass.Height), GraphicsUnit.Pixel);
             }
 
             onUpdate.Invoke((Bitmap)updateCanvass.Clone());
         }
     }
-
-
 
     public void LoadStickers(params string[] filePaths)
     {
@@ -202,7 +206,7 @@ public class Generator : IDisposable
 
         //Randomize grid cells
         var rnd = new Random(DateTime.Now.Millisecond);
-        _gridCells.Sort((a, b) => rnd.Next(-1, 2));
+        _gridCells.Sort((_, _) => rnd.Next(-1, 2));
 
         //Add cell the size of canvass at the end of the list so that some stickers are applied to the whole canvass to fill in gaps
         _gridCells.Add(new GridCell
@@ -212,7 +216,6 @@ public class Generator : IDisposable
             Height = height
         });
     }
-
 
     public Bitmap Resize(Bitmap sourceBitmap, int newWidth, int newHeight)
     {
